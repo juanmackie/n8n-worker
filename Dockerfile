@@ -20,6 +20,9 @@ ENV N8N_LOG_LEVEL=debug
 
 
 ENV N8N_ENCRYPTION_KEY=W0rAjnjtd6
-
+USER root
+WORKDIR /usr/local/lib/node/node_modules/n8n
+RUN npm install -g $CUSTOM_MODULES
+USER node
 
 CMD ["n8n worker"]
