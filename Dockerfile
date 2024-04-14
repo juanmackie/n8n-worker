@@ -6,8 +6,8 @@ ARG PGHOST
 ARG PGPORT
 ARG PGDATABASE
 ARG PGUSER
-
-
+# Add an argument for custom modules
+ARG CUSTOM_MODULES
 
 ENV DB_TYPE=postgresdb
 ENV DB_POSTGRESDB_DATABASE=$PGDATABASE
@@ -16,13 +16,24 @@ ENV DB_POSTGRESDB_PORT=$PGPORT
 ENV DB_POSTGRESDB_USER=$PGUSER
 ENV DB_POSTGRESDB_PASSWORD=$PGPASSWORD
 ENV N8N_LOG_LEVEL=debug
-
-
-
 ENV N8N_ENCRYPTION_KEY=W0rAjnjtd6
+
+# Install dependencies with root privileges
 USER root
-WORKDIR /usr/local/lib/node/node_modules/n8n
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3 \
+    python3-pip \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install custom modules globally
 RUN npm install -g $CUSTOM_MODULES
+
+# Switch back to the node user
 USER node
 
-CMD ["n8n worker"]
+# Set working directory
+WORKDIR /home/node/.n8n
+
+CMD ["n8n", "worker"] 
